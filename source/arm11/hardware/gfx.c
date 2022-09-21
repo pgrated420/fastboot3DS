@@ -121,10 +121,9 @@ void GFX_init(GfxFbFmt fmtTop, GfxFbFmt fmtBot)
 
 	*((vu32*)0x10140140) = 0; // REG_CFG11_GPUPROT
 
-	// Reset.
-	// TODO: The reset destroys bootrom and OTP data. Move it elsewhere.
-	//REG_PDN_GPU_CNT = 0x10000;
-	//wait(12);
+	// Reset
+	REG_PDN_GPU_CNT = 0x10000;
+	wait(12);
 	REG_PDN_GPU_CNT = 0x1007F;
 	REG_GX_GPU_CLK = 0x100;
 	REG_GX_PSC_UNK = 0;
@@ -156,12 +155,10 @@ void GFX_init(GfxFbFmt fmtTop, GfxFbFmt fmtBot)
 	IRQ_registerHandler(IRQ_PPF, 14, 0, true, gfxIrqHandler);
 	IRQ_registerHandler(IRQ_P3D, 14, 0, true, gfxIrqHandler);
 
-	// Clear first half of VRAM + half of the second half.
-	// The bootrom dumps are stored at the end of the second half.
-	// Writing at least one byte to the second half is needed
-	// to "wake" the VRAM up (will read as zeros otherwise).
+	// Clear first half of VRAM.
+	// The bootrom dumps are stored in the other half.
 	GX_memoryFill((u32*)VRAM_BANK0, 1u<<9, VRAM_SIZE / 2, 0,
-	              (u32*)VRAM_BANK1, 1u<<9, VRAM_SIZE / 4, 0);
+	              NULL, 0, 0, 0);
 
 	// Backlight and other stuff.
 	REG_LCD_ABL0_LIGHT = 0;
@@ -192,7 +189,6 @@ void GFX_init(GfxFbFmt fmtTop, GfxFbFmt fmtBot)
 
 	// Make sure the fills finished.
 	GFX_waitForEvent(GFX_EVENT_PSC0, false);
-	GFX_waitForEvent(GFX_EVENT_PSC1, false);
 	REG_LCD_ABL0_FILL = 0;
 	REG_LCD_ABL1_FILL = 0;
 
