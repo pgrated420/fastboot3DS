@@ -13,3 +13,5 @@ superhax/superhax.elf
 fastboot3DS.firm
 fastboot3DS*.7z
 fastboot3DS_priv.key
+source/arm11/hardware/gfx.c
+*.c
